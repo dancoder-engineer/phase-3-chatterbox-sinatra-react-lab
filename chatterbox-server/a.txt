@@ -1,0 +1,71 @@
+== 20220128233511 First: migrating ============================================
+-- create_table(:messages)
+   -> 0.0004s
+== 20220128233511 First: migrated (0.0005s) ===================================
+
+
+Message
+  has the correct columns in the messages table
+
+ApplicationController
+  GET /messages
+    returns an array of JSON objects for all messages in the database
+  POST /messages
+    creates a new message in the database
+    returns data for the newly created message as JSON (FAILED - 1)
+  PATCH /messages/:id
+    updates the body of the message in the database (FAILED - 2)
+    returns data for the updated message as JSON (FAILED - 3)
+  DELETE /messages/:id
+    deletes the message from the database (FAILED - 4)
+
+Failures:
+
+  1) ApplicationController POST /messages returns data for the newly created message as JSON
+     Failure/Error:
+       expect(last_response.body).to include_json(
+         body: "let's get this chat app working", 
+         username: "Liza"
+       )
+
+     JSON::ParserError:
+       783: unexpected token at ''
+     # /usr/share/rvm/gems/ruby-2.7.4/gems/rspec-json_expectations-2.2.0/lib/rspec/json_expectations/matchers.rb:13:in `traverse'
+     # /usr/share/rvm/gems/ruby-2.7.4/gems/rspec-json_expectations-2.2.0/lib/rspec/json_expectations/matcher_factory.rb:13:in `block (2 levels) in define_matcher'
+     # ./spec/02_controllers/application_controller_spec.rb:33:in `block (3 levels) in <top (required)>'
+
+  2) ApplicationController PATCH /messages/:id updates the body of the message in the database
+     Failure/Error:
+             expect do 
+               patch "/messages/#{message2.id}", params
+       
+               message2.reload
+             end.to change(message2, :body).to("Hi!!!!")
+
+       expected `Message#body` to have changed to "Hi!!!!", but did not change
+     # ./spec/02_controllers/application_controller_spec.rb:46:in `block (3 levels) in <top (required)>'
+
+  3) ApplicationController PATCH /messages/:id returns data for the updated message as JSON
+     Failure/Error: expect(last_response.body).to include_json(body: "Hi!!!!")
+
+     JSON::ParserError:
+       783: unexpected token at 'PATCH /messages/2'
+     # /usr/share/rvm/gems/ruby-2.7.4/gems/rspec-json_expectations-2.2.0/lib/rspec/json_expectations/matchers.rb:13:in `traverse'
+     # /usr/share/rvm/gems/ruby-2.7.4/gems/rspec-json_expectations-2.2.0/lib/rspec/json_expectations/matcher_factory.rb:13:in `block (2 levels) in define_matcher'
+     # ./spec/02_controllers/application_controller_spec.rb:56:in `block (3 levels) in <top (required)>'
+
+  4) ApplicationController DELETE /messages/:id deletes the message from the database
+     Failure/Error: expect { delete "/messages/#{message2.id}" }.to change(Message, :count).from(2).to(1)
+       expected `Message.count` to have changed from 2 to 1, but did not change
+     # ./spec/02_controllers/application_controller_spec.rb:62:in `block (3 levels) in <top (required)>'
+
+Finished in 0.07487 seconds (files took 0.42816 seconds to load)
+7 examples, 4 failures
+
+Failed examples:
+
+rspec ./spec/02_controllers/application_controller_spec.rb:30 # ApplicationController POST /messages returns data for the newly created message as JSON
+rspec ./spec/02_controllers/application_controller_spec.rb:45 # ApplicationController PATCH /messages/:id updates the body of the message in the database
+rspec ./spec/02_controllers/application_controller_spec.rb:53 # ApplicationController PATCH /messages/:id returns data for the updated message as JSON
+rspec ./spec/02_controllers/application_controller_spec.rb:61 # ApplicationController DELETE /messages/:id deletes the message from the database
+
